@@ -1,0 +1,66 @@
+{
+  "name": "webpack-panorama",
+  "version": "0.1.0",
+  "description": "Utilities for using webpack with Valve's Panorama UI (for Dota 2 Custom Games).",
+  "keywords": [
+    "dota",
+    "panorama",
+    "webpack"
+  ],
+  "repository": "https://github.com/ark120202/webpack-panorama",
+  "license": "MIT",
+  "author": "ark120202",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*.{js,ts,json}",
+    "manifest-template.ejs"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "run-p lint:*",
+    "lint:eslint": "eslint .",
+    "lint:prettier": "prettier --check .",
+    "prepublishOnly": "yarn build"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "proseWrap": "always",
+    "singleQuote": true,
+    "trailingComma": "all"
+  },
+  "eslintConfig": {
+    "parserOptions": {
+      "project": "tsconfig.json"
+    },
+    "extends": "@ark120202/eslint-config/node",
+    "ignorePatterns": "/lib"
+  },
+  "dependencies": {
+    "@posthtml/esm": "^1.0.0",
+    "html-webpack-plugin": "^4.4.1",
+    "js-yaml": "^3.14.0",
+    "loader-utils": "^2.0.0",
+    "lodash": "^4.17.20",
+    "posthtml": "^0.13.3",
+    "schema-utils": "^2.7.1"
+  },
+  "devDependencies": {
+    "@ark120202/eslint-config": "^2.4.2",
+    "@ark120202/typescript-config": "^2.2.0",
+    "@types/htmlparser2": "^3.10.2",
+    "@types/js-yaml": "^3.12.5",
+    "@types/loader-utils": "^2.0.1",
+    "@types/lodash": "^4.14.161",
+    "@types/node": "^14.6.4",
+    "eslint": "^7.8.1",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.1.1",
+    "typescript": "^4.0.2",
+    "webpack": "^5.0.0-beta.29"
+  },
+  "peerDependencies": {
+    "webpack": "^5.0.0-beta.29"
+  }
+}

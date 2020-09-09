@@ -1,0 +1,16 @@
+{
+  "extends": "@ark120202/typescript-config/node/12.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib",
+
+    "baseUrl": ".",
+    "paths": {
+      "*": ["types/*"],
+      "@posthtml/esm": ["types/posthtml-esm.d.ts"]
+    },
+
+    // Required for @types/loader-utils and html-webpack-plugin
+    "skipLibCheck": true
+  }
+}
