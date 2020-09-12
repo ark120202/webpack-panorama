@@ -1,7 +1,5 @@
 import webpack from 'webpack';
 
-function noopTarget() {}
-
 // We have to use an actual plugin, because "target" function is applied after config defaults
 export class PanoramaTargetPlugin {
   public apply(compiler: webpack.Compiler) {
@@ -11,7 +9,7 @@ export class PanoramaTargetPlugin {
       throw new Error("'target' option cannot be used with PanoramaTargetWebpackPlugin.");
     }
 
-    options.target = noopTarget;
+    options.target = 'es2017';
 
     // Overriding defaults from https://github.com/webpack/webpack/blob/86ca074290d5b6930c9a85a7eb4d4bd39f0b6509/lib/config/defaults.js
 
@@ -20,7 +18,6 @@ export class PanoramaTargetPlugin {
 
     // TODO: Add .xml asset default rule?
 
-    options.output.ecmaVersion ??= 2017;
     options.output.globalObject ??= "new Function('return this')()";
     options.output.enabledChunkLoadingTypes ??= [];
 
@@ -52,7 +49,6 @@ export class PanoramaTargetPlugin {
     // https://github.com/webpack/webpack/blob/86ca074290d5b6930c9a85a7eb4d4bd39f0b6509/lib/WebpackOptionsApply.js#L72
     compiler.hooks.initialize.tap('PanoramaTargetWebpackPlugin', () => {
       new webpack.LoaderTargetPlugin('panorama').apply(compiler);
-      new webpack.node.NodeSourcePlugin(options.node).apply(compiler);
     });
   }
 }
