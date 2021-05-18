@@ -44,13 +44,15 @@ export default async function layoutLoader(
       xmlMode: true,
     });
 
-    this._compilation.hooks.processAssets.tap(
+    const compilation = this._compilation;
+    const module = this._module;
+
+    compilation.hooks.processAssets.tap(
       { name: 'layout-loader', stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE },
       () => {
-        for (const chunk of this._compilation.chunkGraph.getModuleChunks(this._module)) {
+        for (const chunk of compilation.chunkGraph.getModuleChunks(module)) {
           for (const file of chunk.files) {
-            // @ts-expect-error Expected 2 arguments, but got 1.
-            this._compilation.updateAsset(file, new webpack.sources.RawSource(html));
+            compilation.updateAsset(file, new webpack.sources.RawSource(html));
           }
         }
       },
