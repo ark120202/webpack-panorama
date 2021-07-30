@@ -2,7 +2,7 @@ import { OptionObject } from 'loader-utils';
 import webpack from 'webpack';
 
 export type LoaderCallback = (
-  err: Error | undefined | null,
+  error: Error | undefined | null,
   content?: string | Buffer,
   sourceMap?: any,
 ) => void;
@@ -27,9 +27,9 @@ export interface LoaderContext {
   emitError(message: string | Error): void;
   loadModule(
     request: string,
-    callback: (err: Error | null, source: string, sourceMap: any, module: webpack.Module) => void,
+    callback: (error: Error | null, source: string, sourceMap: any, module: webpack.Module) => void,
   ): any;
-  resolve(context: string, request: string, callback: (err: Error, result: string) => void): any;
+  resolve(context: string, request: string, callback: (error: Error, result: string) => void): any;
   resolveSync(context: string, request: string): string;
   addDependency(file: string): void;
   dependency(file: string): void;
@@ -41,14 +41,14 @@ export interface LoaderContext {
   minimize: boolean;
   sourceMap: boolean;
   target:
-    | 'web'
-    | 'webworker'
-    | 'async-node'
-    | 'node'
-    | 'electron-main'
-    | 'electron-renderer'
-    | 'node-webkit'
-    | string;
+  | 'web'
+  | 'webworker'
+  | 'async-node'
+  | 'node'
+  | 'electron-main'
+  | 'electron-renderer'
+  | 'node-webkit'
+  | string;
   webpack: boolean;
   emitFile(name: string, content: Buffer | string, sourceMap: any): void;
   fs: any;

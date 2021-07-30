@@ -11,7 +11,7 @@ import {
 } from './posthtml-plugin-panorama-includes';
 
 export interface PostHTMLLoaderMeta {
-  ast?: { type: 'posthtml'; root: posthtml.Node[] };
+  ast?: { type: 'posthtml'; root: posthtml.Node[]; };
   messages: posthtml.Message[];
 }
 
@@ -49,7 +49,6 @@ export default async function layoutLoader(
       () => {
         for (const chunk of this._compilation.chunkGraph.getModuleChunks(this._module)) {
           for (const file of chunk.files) {
-            // @ts-expect-error Expected 2 arguments, but got 1.
             this._compilation.updateAsset(file, new webpack.sources.RawSource(html));
           }
         }

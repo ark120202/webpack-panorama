@@ -80,7 +80,7 @@ export class PanoramaManifestPlugin {
 
         const { inputFileSystem } = compiler;
         const readFile = promisify(inputFileSystem.readFile.bind(inputFileSystem));
-        const rawManifest = (await readFile(this.entries)).toString('utf8');
+        const rawManifest = (await readFile(this.entries))!.toString('utf8');
 
         try {
           if (/\.ya?ml$/.test(this.entries)) {

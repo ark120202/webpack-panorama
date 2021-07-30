@@ -48,7 +48,6 @@ function createCompiler(
   ];
 
   const compilerName = path.relative(oldCompiler.context, loader.resourcePath);
-  // @ts-expect-error Type 'WebpackPluginInstance' is not assignable to type 'Plugin'.
   const childCompiler = oldCompilation.createChildCompiler(compilerName, outputOptions, plugins);
 
   const { rawRequest } = loader._module as webpack.NormalModule;
