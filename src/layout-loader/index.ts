@@ -21,7 +21,12 @@ export default async function layoutLoader(
   _map: never,
   meta?: PostHTMLLoaderMeta,
 ) {
-  this.cacheable(true);
+  const options = this.getOptions();
+  if (typeof options.cacheable == "boolean") {
+    this.cacheable(options.cacheable);
+  } else {
+    this.cacheable(false);
+  }
 
   const callback = this.async()!;
 
