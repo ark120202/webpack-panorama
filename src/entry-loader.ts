@@ -4,15 +4,17 @@ import webpack from 'webpack';
 import { LoaderContext } from './webpack-loader-api';
 
 export interface EntryLoaderOptions {
+  cacheable?: boolean | false;
   filename?: string;
   plugins?: (string | webpack.WebpackPluginInstance)[];
 }
 
 export function pitch(this: LoaderContext) {
-  this.cacheable(false);
+  const options: EntryLoaderOptions = this.getOptions();
+
+  this.cacheable(options.cacheable ?? false);
   this.addDependency(this.resourcePath);
 
-  const options: EntryLoaderOptions = this.getOptions();
   const filenameTemplate = options.filename ?? '[path][name].js';
   const filename = interpolateName(this, filenameTemplate, { context: this.rootContext });
   const compiler = createCompiler(this, filename, options.plugins ?? []);

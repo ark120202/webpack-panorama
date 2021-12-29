@@ -21,7 +21,7 @@ export default async function layoutLoader(
   _map: never,
   meta?: PostHTMLLoaderMeta,
 ) {
-  this.cacheable(false);
+  this.cacheable(true);
 
   const callback = this.async()!;
 
@@ -44,12 +44,15 @@ export default async function layoutLoader(
       xmlMode: true,
     });
 
-    this._compilation.hooks.processAssets.tap(
+    const compilation = this._compilation;
+    const module = this._module;
+
+    compilation.hooks.processAssets.tap(
       { name: 'layout-loader', stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE },
       () => {
-        for (const chunk of this._compilation.chunkGraph.getModuleChunks(this._module)) {
+        for (const chunk of compilation.chunkGraph.getModuleChunks(module)) {
           for (const file of chunk.files) {
-            this._compilation.updateAsset(file, new webpack.sources.RawSource(html));
+            compilation.updateAsset(file, new webpack.sources.RawSource(html));
           }
         }
       },
@@ -57,6 +60,7 @@ export default async function layoutLoader(
 
     callback(null, '');
   } catch (error) {
+    // @ts-ignore
     callback(error);
   }
 }

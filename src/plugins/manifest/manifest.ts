@@ -1,4 +1,4 @@
-import validateOptions from 'schema-utils';
+import { validate } from 'schema-utils';
 import WebpackError from 'webpack/lib/WebpackError';
 import manifestSchema from './manifest.schema.json';
 
@@ -48,7 +48,7 @@ export class PanoramaManifestError extends WebpackError {
 }
 
 export function validateManifest(manifest: ManifestEntry[], manifestName?: string) {
-  validateOptions(manifestSchema.items as any, manifest, {
+  validate(manifestSchema.items as any, manifest, {
     baseDataPath: 'manifest',
     name: getErrorName(manifestName),
   });

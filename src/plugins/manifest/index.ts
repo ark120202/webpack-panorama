@@ -1,5 +1,5 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin';
-import yaml from 'js-yaml';
+import yaml, { FAILSAFE_SCHEMA } from 'js-yaml';
 import { interpolateName } from 'loader-utils';
 import path from 'path';
 import { promisify } from 'util';
@@ -84,13 +84,14 @@ export class PanoramaManifestPlugin {
 
         try {
           if (/\.ya?ml$/.test(this.entries)) {
-            entries = (yaml.safeLoad(rawManifest) as any) ?? [];
+            entries = ((yaml.load(rawManifest, { schema: FAILSAFE_SCHEMA })) ?? []) as ManifestEntry[];
           } else if (this.entries.endsWith('.json')) {
             entries = JSON.parse(rawManifest);
           } else {
             throw new Error(`Unknown file extension '${path.extname(this.entries)}'`);
           }
         } catch (error) {
+          // @ts-ignore
           compilation.errors.push(new PanoramaManifestError(error.message, manifestName));
           return;
         }
@@ -102,6 +103,7 @@ export class PanoramaManifestPlugin {
       try {
         validateManifest(entries, manifestName);
       } catch (error) {
+        // @ts-ignore
         compilation.errors.push(error);
         return;
       }
@@ -155,6 +157,22 @@ export class PanoramaManifestPlugin {
             }
           }
         }
+
+        xmlAssets.sort((a, b) => {
+          if (a.type > b.type) {
+            return 1;
+          }
+          if (a.type < b.type) {
+            return -1;
+          }
+          if (a.file > b.file) {
+            return 1;
+          }
+          if (a.file < b.file) {
+            return -1;
+          }
+          return 0;
+        });
 
         (args.assets as any).xml = xmlAssets;
 
