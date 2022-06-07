@@ -184,7 +184,7 @@ export class PanoramaManifestPlugin {
 
         (args.assets as any).xml = xmlAssets;
 
-        if (this.options != undifined && this.options.kv != undifined) {
+        if (this.options != undefined && this.options.kv != undefined) {
           for (const kv of this.options.kv) {
             args.assets.js.push(`file://{resources}/layout/custom_game/kv/${kv}.js`);
           }
