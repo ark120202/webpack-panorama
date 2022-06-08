@@ -193,5 +193,16 @@ export class PanoramaManifestPlugin {
         return args;
       });
     });
+
+    compiler.hooks.emit.tap(this.constructor.name, (compilation) => {
+      for (const file in compilation.assets) {
+        if (file.endsWith('.xml')) {
+          // @ts-ignore
+          if (compilation.assets[file]._valueAsString == undefined) {
+            delete compilation.assets[file];
+          }
+        }
+      }
+    });
   }
 }
