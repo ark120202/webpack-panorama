@@ -36,6 +36,10 @@ export interface PanoramaManifestPluginOptions extends HtmlWebpackPlugin.Options
    * @default '[path][name].[ext]'
    */
   entryFilename?: string;
+
+  options: {
+    kv: string[];
+  };
 }
 
 const addEntry = promisify(webpack.Compilation.prototype.addEntry);
@@ -44,6 +48,9 @@ export class PanoramaManifestPlugin {
   private readonly entries: string | ManifestEntry[];
   private readonly entryFilename: string;
   private readonly htmlWebpackPlugin: HtmlWebpackPlugin;
+  private readonly options: {
+    kv: string[];
+  };
   constructor({ entries, entryFilename, ...options }: PanoramaManifestPluginOptions) {
     this.entries = entries;
     this.entryFilename = entryFilename ?? '[path][name].[ext]';
@@ -54,6 +61,7 @@ export class PanoramaManifestPlugin {
       xhtml: true,
       ...options,
     });
+    this.options = options.options;
   }
 
   public apply(compiler: webpack.Compiler) {
@@ -176,8 +184,25 @@ export class PanoramaManifestPlugin {
 
         (args.assets as any).xml = xmlAssets;
 
+        if (this.options != undefined && this.options.kv != undefined) {
+          for (const kv of this.options.kv) {
+            args.assets.js.push(`file://{resources}/layout/custom_game/kv/${kv}.js`);
+          }
+        }
+
         return args;
       });
+    });
+
+    compiler.hooks.emit.tap(this.constructor.name, (compilation) => {
+      for (const file in compilation.assets) {
+        if (file.endsWith('.xml')) {
+          // @ts-ignore
+          if (compilation.assets[file]._valueAsString == undefined) {
+            delete compilation.assets[file];
+          }
+        }
+      }
     });
   }
 }
