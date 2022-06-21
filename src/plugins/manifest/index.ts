@@ -42,7 +42,7 @@ export interface PanoramaManifestPluginOptions extends HtmlWebpackPlugin.Options
    */
   kv?: string[];
   /**
-   * @default 'file://{resources}/layout/custom_game/kv/'
+   * @default 'file://{resources}/scripts/custom_game/kv/'
    */
   kv_path?: string;
 }
@@ -54,7 +54,7 @@ export class PanoramaManifestPlugin {
   private readonly entryFilename: string;
   private readonly htmlWebpackPlugin: HtmlWebpackPlugin;
   private readonly kv: string[] | undefined;
-  private readonly kv_path: string = "file://{resources}/layout/custom_game/kv/";
+  private readonly kv_path: string = "file://{resources}/scripts/custom_game/kv/";
   constructor({ entries, entryFilename, kv, kv_path, ...options }: PanoramaManifestPluginOptions) {
     this.entries = entries;
     this.entryFilename = entryFilename ?? '[path][name].[ext]';
@@ -196,7 +196,7 @@ export class PanoramaManifestPlugin {
         if (this.kv != undefined) {
           for (let i = 0; i < this.kv.length; i++) {
             const kv_name = this.kv[i];
-            args.assets.js.push(`${this.kv_path}${kv_name}.js`);
+            args.assets.js.unshift(`${this.kv_path}${kv_name}.js`);
           }
         }
 
