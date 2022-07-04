@@ -74,7 +74,6 @@ export default async function layoutLoader(
       });
       if (includes != "") {
         source = source.replace(/(.*<\/styles>)/, includes + "\n$1");
-        console.log(source);
       }
     }
 
