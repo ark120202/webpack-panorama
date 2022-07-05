@@ -46,35 +46,18 @@ export default async function layoutLoader(
 
   try {
     // 处理导入css写到xml中
+    let lessList = {};
     let tsx = source.match(/<include src="(.*tsx)".*\/>/g)?.map((context) => {
       return context.replace(/<include src="(.*tsx)".*\/>/g, "$1");
     })?.map((context) => {
-      return path.resolve(this.context, context);
+      lessList = resolveImport(this.context, path.resolve(this.context, context));
     });
-    if (tsx) {
-      let includes = "";
-      tsx.forEach(element => {
-        let text = fs.readFileSync(element, "utf-8");
-        if (text.search(/import.*.less.*;/) != -1) {
-          let lessList = text.match(/import ('|")(.*less)('|");/g)?.map((context) => {
-            return context.replace(/import ('|")(.*less)('|");/g, "$2");
-          })?.map((context) => {
-            return path.resolve(this.context, context);
-          })?.map((context) => {
-            return path.relative(this.context, context);
-          });
-
-          if (lessList) {
-            lessList.forEach(less => {
-              includes += `\n\t\t<include src=\"${less.replace(/\\/g, "/")}\"/>`;
-            });
-          }
-
-        }
-      });
-      if (includes != "") {
-        source = source.replace(/(.*<\/styles>)/, includes + "\n$1");
-      }
+    let includes = "";
+    for (const lessPath in lessList) {
+      includes += `\n\t\t<include src=\"${path.relative(this.context, lessPath).replace(/\\/g, "/")}\"/>`;
+    }
+    if (tsx && includes != "") {
+      source = source.replace(/(.*<\/styles>)/, includes + "\n$1");
     }
 
     const input = meta?.ast?.type === 'posthtml' ? meta.ast.root : source;
@@ -102,4 +85,28 @@ export default async function layoutLoader(
     // @ts-ignore
     callback(error);
   }
+}
+
+/** 递归解析所有的import，暂时只支持tsx */
+function resolveImport(layoutPath: string, importPath: string) {
+  let list: { [k: string]: boolean; } = {};
+  const content = fs.readFileSync(importPath, "utf-8");
+  const importList = content.match(/import.*('|")(\.\.\/.*|\.\/.*)('|");/g)?.map((relativePath) => {
+    return relativePath.replace(/import.*('|")(\.\.\/.*|\.\/.*)('|");/g, "$2");
+  })?.map((relativePath) => {
+    return path.resolve(layoutPath, relativePath);
+  });
+  if (importList) {
+    importList.forEach(element => {
+      if (element.search(/.*.less/) != -1) {
+        list[element] = true;
+      } else {
+        let exists = fs.existsSync(element + ".tsx");
+        if (exists) {
+          list = Object.assign(list, resolveImport(path.dirname(element + ".tsx"), element + ".tsx"));
+        }
+      }
+    });
+  }
+  return list;
 }
