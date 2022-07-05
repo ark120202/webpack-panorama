@@ -1,6 +1,8 @@
 import posthtml from 'posthtml';
 import { imports, urls } from '@posthtml/esm';
 import webpack from 'webpack';
+import path from 'path';
+import fs from 'fs';
 import { LoaderContext } from '../webpack-loader-api';
 import { banTextNodes } from './posthtml-plugin-ban-text-nodes';
 import { loadImports } from './posthtml-plugin-load-imports';
@@ -43,6 +45,38 @@ export default async function layoutLoader(
   ];
 
   try {
+    // 处理导入css写到xml中
+    let tsx = source.match(/<include src="(.*tsx)".*\/>/g)?.map((context) => {
+      return context.replace(/<include src="(.*tsx)".*\/>/g, "$1");
+    })?.map((context) => {
+      return path.resolve(this.context, context);
+    });
+    if (tsx) {
+      let includes = "";
+      tsx.forEach(element => {
+        let text = fs.readFileSync(element, "utf-8");
+        if (text.search(/import.*.less.*;/) != -1) {
+          let lessList = text.match(/import ('|")(.*less)('|");/g)?.map((context) => {
+            return context.replace(/import ('|")(.*less)('|");/g, "$2");
+          })?.map((context) => {
+            return path.resolve(this.context, context);
+          })?.map((context) => {
+            return path.relative(this.context, context);
+          });
+
+          if (lessList) {
+            lessList.forEach(less => {
+              includes += `\n\t\t<include src=\"${less.replace(/\\/g, "/")}\"/>`;
+            });
+          }
+
+        }
+      });
+      if (includes != "") {
+        source = source.replace(/(.*<\/styles>)/, includes + "\n$1");
+      }
+    }
+
     const input = meta?.ast?.type === 'posthtml' ? meta.ast.root : source;
     const { html } = await posthtml(plugins).process(input, {
       closingSingleTag: 'slash',

@@ -37,9 +37,14 @@ export interface PanoramaManifestPluginOptions extends HtmlWebpackPlugin.Options
    */
   entryFilename?: string;
 
-  options: {
-    kv: string[];
-  };
+  /**
+   * js kv list, let sc
+   */
+  kv?: string[];
+  /**
+   * @default 'file://{resources}/scripts/custom_game/kv/'
+   */
+  kv_path?: string;
 }
 
 const addEntry = promisify(webpack.Compilation.prototype.addEntry);
@@ -48,10 +53,9 @@ export class PanoramaManifestPlugin {
   private readonly entries: string | ManifestEntry[];
   private readonly entryFilename: string;
   private readonly htmlWebpackPlugin: HtmlWebpackPlugin;
-  private readonly options: {
-    kv: string[];
-  };
-  constructor({ entries, entryFilename, ...options }: PanoramaManifestPluginOptions) {
+  private readonly kv: string[] | undefined;
+  private readonly kv_path: string = "file://{resources}/scripts/custom_game/kv/";
+  constructor({ entries, entryFilename, kv, kv_path, ...options }: PanoramaManifestPluginOptions) {
     this.entries = entries;
     this.entryFilename = entryFilename ?? '[path][name].[ext]';
     this.htmlWebpackPlugin = new HtmlWebpackPlugin({
@@ -61,7 +65,12 @@ export class PanoramaManifestPlugin {
       xhtml: true,
       ...options,
     });
-    this.options = options.options;
+    if (kv) {
+      this.kv = kv;
+    }
+    if (typeof kv_path == "string") {
+      this.kv_path = kv_path;
+    }
   }
 
   public apply(compiler: webpack.Compiler) {
@@ -184,14 +193,26 @@ export class PanoramaManifestPlugin {
 
         (args.assets as any).xml = xmlAssets;
 
-        if (this.options.kv) {
-          for (const kv of this.options.kv) {
-            args.assets.js.push(`file://{resources}/layout/custom_game/kv/${kv}.js`);
+        if (this.kv != undefined) {
+          for (let i = 0; i < this.kv.length; i++) {
+            const kv_name = this.kv[i];
+            args.assets.js.unshift(`${this.kv_path}${kv_name}.js`);
           }
         }
 
         return args;
       });
+    });
+
+    compiler.hooks.emit.tap(this.constructor.name, (compilation) => {
+      for (const file in compilation.assets) {
+        if (file.endsWith('.xml')) {
+          // @ts-ignore
+          if (compilation.assets[file]._valueAsString == undefined) {
+            delete compilation.assets[file];
+          }
+        }
+      }
     });
   }
 }
