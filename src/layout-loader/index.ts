@@ -50,7 +50,7 @@ export default async function layoutLoader(
     let tsx = source.match(/<include src="(.*tsx)".*\/>/g)?.map((context) => {
       return context.replace(/<include src="(.*tsx)".*\/>/g, "$1");
     })?.map((context) => {
-      lessList = resolveImport(this.context, path.resolve(this.context, context));
+      lessList = { ...resolveImport(this.context, path.resolve(this.context, context)) };
     });
     let includes = "";
     for (const lessPath in lessList) {
