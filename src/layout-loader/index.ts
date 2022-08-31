@@ -50,11 +50,15 @@ export default async function layoutLoader(
     let tsx = source.match(/<include src="(.*tsx)".*\/>/g)?.map((context) => {
       return context.replace(/<include src="(.*tsx)".*\/>/g, "$1");
     })?.map((context) => {
-      lessList = { ...resolveImport(this.context, path.resolve(this.context, context)) };
+      lessList = { ...lessList, ...resolveImport(this.context, path.resolve(this.context, context)) };
     });
     let includes = "";
     for (const lessPath in lessList) {
-      includes += `\n\t\t<include src=\"${path.relative(this.context, lessPath).replace(/\\/g, "/")}\"/>`;
+      let importPath = path.relative(this.context, lessPath);
+      if (importPath[0] != ".") {
+        importPath = "./" + importPath;
+      }
+      includes += `\n\t\t<include src=\"${importPath.replace(/\\/g, "/")}\"/>`;
     }
     if (tsx && includes != "") {
       source = source.replace(/(.*<\/styles>)/, includes + "\n$1");
