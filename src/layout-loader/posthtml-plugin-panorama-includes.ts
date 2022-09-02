@@ -50,7 +50,7 @@ export const validateIncludes = (context: LoaderContext): posthtml.Plugin => (tr
           context.emitError(new Error(`Dependency '${src}' has invalid extension`));
         }
       } else if (scope.tag === 'scripts') {
-        if (!src.endsWith('.js') && !src.endsWith('.vjs_c')) {
+        if (!src.endsWith('.js') && !src.endsWith('.vjs_c') && !src.endsWith('.ts') && !src.endsWith('.vts_c')) {
           context.emitError(new Error(`Dependency '${src}' has invalid extension`));
         }
       }
