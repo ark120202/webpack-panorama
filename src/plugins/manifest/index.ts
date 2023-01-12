@@ -55,6 +55,7 @@ export class PanoramaManifestPlugin {
   private readonly htmlWebpackPlugin: HtmlWebpackPlugin;
   private readonly kv: string[] | undefined;
   private readonly kv_path: string = "file://{resources}/scripts/custom_game/kv/";
+  private bManifestGenerated = false;
   constructor({ entries, entryFilename, kv, kv_path, ...options }: PanoramaManifestPluginOptions) {
     this.entries = entries;
     this.entryFilename = entryFilename ?? '[path][name].[ext]';
@@ -207,6 +208,14 @@ export class PanoramaManifestPlugin {
 
     compiler.hooks.emit.tap(this.constructor.name, (compilation) => {
       for (const file in compilation.assets) {
+        if (file == "custom_ui_manifest.xml") {
+          if (this.bManifestGenerated == false) {
+            this.bManifestGenerated = true;
+          } else {
+            delete compilation.assets[file];
+            continue;
+          }
+        }
         if (file.endsWith('.xml')) {
           // @ts-ignore
           if (compilation.assets[file]._valueAsString == undefined) {
